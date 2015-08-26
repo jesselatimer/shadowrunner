@@ -3,28 +3,18 @@
   <head>
     <title>ShadowRunner by Jesse Latimer</title>
     <link rel="stylesheet" type="text/css" href="css/shadowrunner.css">
-    <script src="js/utils/keymaster.js"></script>
-    <script src="js/utils/utils.js"></script>
-    <script src="js/MovingObject.js"></script>
-    <script src="js/obstacle.js"></script>
-    <script src="js/runner.js"></script>
-    <script src="js/game.js"></script>
-    <script src="js/gameView.js"></script>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
   </head>
   <body>
     <!-- <h1>ShadowRunner</h1>
     <h2>by Jesse Latimer</h2> -->
 
-    <div class="game-wrapper">
-      <canvas id="game-canvas"></canvas>
+    <div id="game-wrapper">
     </div>
 
     <script>
-      var canvasEl = document.getElementById("game-canvas");
-      canvasEl.height = window.innerHeight * .95;
-      canvasEl.width = window.innerWidth * .95;
-      var game = new ShadowRunner.Game(canvasEl.width, canvasEl.height, 1);
-      new ShadowRunner.GameView(game, canvasEl).start();
+      // var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game-wrapper', { preload: preload, create: create, update: update }, true);
     </script>
   </body>
 </html>
