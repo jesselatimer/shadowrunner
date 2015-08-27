@@ -20,7 +20,8 @@
 
     // Set the dimensions of the canvas as variables so they can be used.
     this.canvasWidth = window.innerWidth;
-    this.canvasHeight = window.innerHeight;
+    var docHeight = document.body.offsetHeight;
+    this.canvasHeight = (docHeight < 400) ? 400 : docHeight;
 
     // Create an image object (only need one instance)
     var imageObj = new Image();
@@ -33,7 +34,7 @@
     }.bind(this);
 
     // Once the callback is arranged then set the source of the image
-    imageObj.src = "http://www.blog.jonnycornwell.com/wp-content/uploads/2012/07/Smoke10.png";
+    imageObj.src = "/assets/Smoke10.png";
 
     // The canvas context if it is defined.
     // Don't need because it's a instance variable.
@@ -144,13 +145,13 @@
 
   // Initialise the scene and set the context if possible
   Mist.prototype.init = function () {
-      var canvas = document.getElementById('mist-canvas');
-      canvas.width = this.canvasWidth;
-      canvas.height = this.canvasHeight;
-      if (canvas.getContext) {
+      this.canvas = document.getElementById('mist-canvas');
+      this.canvas.width = this.canvasWidth;
+      this.canvas.height = this.canvasHeight;
+      if (this.canvas.getContext) {
 
           // Set the context variable so it can be re-used
-          this.context = canvas.getContext('2d');
+          this.context = this.canvas.getContext('2d');
 
           // Create the particles and set their initial positions and velocities
           for(var i=0; i < this.particleCount; ++i){

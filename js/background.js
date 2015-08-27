@@ -5,43 +5,67 @@
   var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
 
   var Background = ShadowRunner.Background = function () {
-    // Terrain stuff.
     this.background = document.getElementById("bg-canvas");
-    this.bgCtx = background.getContext("2d");
+    this.bgCtx = this.background.getContext("2d");
+
     this.width = window.innerWidth;
-    this.height = document.body.offsetHeight;
+    var docHeight = document.body.offsetHeight;
+    this.height = (docHeight < 400) ? 400 : docHeight;
 
-    this.height = (this.height < 400) ? 400 : this.height;
+    this.background.width = this.width;
+    this.background.height = this.height;
 
-    this.background.width = width;
-    this.background.height = height;
-
+    this.entities = [];
+    this.entities.push(new Terrain({fillStyle : "#929292", mHeight : (this.height/2)-300, width: this.width, height: this.height}));
+    this.entities.push(new Terrain({displacement : 120, scrollDelay : 50, fillStyle : "#5f5f5f", mHeight : (this.height/2)-200, width: this.width, height: this.height}));
+    this.entities.push(new Terrain({displacement : 100, scrollDelay : 20, fillStyle : "#3a3a3a", mHeight : (this.height/2)-75, width: this.width, height: this.height}));
 
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-            window.setTimeout(callback, 1000 / 60);
-        };
+      window.setTimeout(callback, 1000 / 60);
+    };
     window.requestAnimationFrame = requestAnimationFrame;
+
+    this.animate();
   };
 
-  function Terrain(options) {
+  //animate background
+  Background.prototype.animate = function () {
+      this.bgCtx.fillStyle = '#b2b2b2';
+      this.bgCtx.fillRect(0, 0, this.width, this.height);
+      this.bgCtx.fillStyle = '#ffffff';
+      this.bgCtx.strokeStyle = '#ffffff';
+
+      var entLen = this.entities.length;
+
+      while (entLen--) {
+          this.entities[entLen].update();
+      }
+      requestAnimationFrame(this.animate.bind(this));
+  };
+
+  // Define Terrain
+  var Terrain = ShadowRunner.Terrain = function (options) {
       options = options || {};
+
       this.terrain = document.createElement("canvas");
       this.terCtx = this.terrain.getContext("2d");
       this.scrollDelay = options.scrollDelay || 90;
       this.lastScroll = new Date().getTime();
 
-      this.terrain.width = width;
-      this.terrain.height = height;
+      this.width = options.width;
+      this.height = options.height;
+      this.terrain.width = this.width;
+      this.terrain.height = this.height;
       this.fillStyle = options.fillStyle || "#191D4C";
-      this.mHeight = options.mHeight || height;
+      this.mHeight = options.mHeight || this.height;
 
       // generate
       this.points = [];
 
       var displacement = options.displacement || 140,
-          power = Math.pow(2, Math.ceil(Math.log(width) / (Math.log(2))));
+          power = Math.pow(2, Math.ceil(Math.log(this.width) / (Math.log(2))));
 
-      // set the start height and end height for the terrain
+      // set the start this.height and end this.height for the terrain
       this.points[0] = this.mHeight;//(this.mHeight - (Math.random() * this.mHeight / 2)) - displacement;
       this.points[power] = this.points[0];
 
@@ -54,11 +78,11 @@
       }
 
       document.getElementById('bg-canvas-wrapper').appendChild(this.terrain);
-  }
+  };
 
   Terrain.prototype.update = function () {
       // draw the terrain
-      this.terCtx.clearRect(0, 0, width, height);
+      this.terCtx.clearRect(0, 0, this.width, this.height);
       this.terCtx.fillStyle = this.fillStyle;
 
       if (new Date().getTime() > this.lastScroll + this.scrollDelay) {
@@ -67,7 +91,7 @@
       }
 
       this.terCtx.beginPath();
-      for (var i = 0; i <= width; i++) {
+      for (var i = 0; i <= this.width; i++) {
           if (i === 0) {
               this.terCtx.moveTo(0, this.points[0]);
           } else if (this.points[i] !== undefined) {
@@ -75,37 +99,9 @@
           }
       }
 
-      this.terCtx.lineTo(width, this.terrain.height);
+      this.terCtx.lineTo(this.width, this.terrain.height);
       this.terCtx.lineTo(0, this.terrain.height);
       this.terCtx.lineTo(0, this.points[0]);
       this.terCtx.fill();
-  }
-
-
-  // Second canvas used for the stars
-  bgCtx.fillStyle = '#05004c';
-  bgCtx.fillRect(0, 0, width, height);
-
-  var entities = [];
-
-  entities.push(new Terrain({fillStyle : "#929292", mHeight : (height/2)-300}));
-  entities.push(new Terrain({displacement : 120, scrollDelay : 50, fillStyle : "#5f5f5f", mHeight : (height/2)-200}));
-  entities.push(new Terrain({displacement : 100, scrollDelay : 20, fillStyle : "#3a3a3a", mHeight : (height/2)-75, }));
-
-  //animate background
-  function animate() {
-      bgCtx.fillStyle = '#b2b2b2';
-      bgCtx.fillRect(0, 0, width, height);
-      bgCtx.fillStyle = '#ffffff';
-      bgCtx.strokeStyle = '#ffffff';
-
-      var entLen = entities.length;
-
-      while (entLen--) {
-          entities[entLen].update();
-      }
-      requestAnimationFrame(animate);
-  }
-
-  animate();
+  };
 })();
