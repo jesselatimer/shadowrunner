@@ -9,12 +9,23 @@
   <body>
     <!-- <h1>ShadowRunner</h1>
     <h2>by Jesse Latimer</h2> -->
-
-    <div id="game-wrapper">
+    <div id="bg-canvas-wrapper">
+      <canvas id="bg-canvas"></canvas>
     </div>
 
+    <div id="mist-canvas-wrapper">
+      <canvas id="mist-canvas"></canvas>
+    </div>
+
+    <div id="game-wrapper"></div>
+
+    <script type="text/javascript" src="js/background.js"></script>
+    <script type="text/javascript" src="js/mist.js"></script>
     <script>
-      // var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game-wrapper', { preload: preload, create: create, update: update }, true);
+      (function () {
+        new ShadowRunner.Mist();
+        // var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game-wrapper', { preload: preload, create: create, update: update }, true);
+      })();
     </script>
   </body>
 </html>

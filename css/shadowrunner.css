@@ -1,6 +1,34 @@
-body {
+/*body {
   margin: 0;
   padding: 0;
   background: url('/assets/background_vectorized.png') center bottom fixed;
   background-size: cover;
+}*/
+
+body, html {
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+canvas {
+    position:absolute;
+    top:0;
+    left:0
+}
+
+#bg-canvas-wrapper canvas:last-of-type {
+  z-index: 3
+}
+
+#mist-canvas-wrapper canvas {
+  z-index: 2;
+  opacity: 0.4;
+}
+
+#game-wrapper canvas {
+  z-index: 5
 }
