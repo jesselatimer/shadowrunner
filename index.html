@@ -3,8 +3,6 @@
   <head>
     <title>ShadowRunner by Jesse Latimer</title>
     <link rel="stylesheet" type="text/css" href="css/shadowrunner.css">
-    <script type="text/javascript" src="js/phaser.min.js"></script>
-    <script type="text/javascript" src="js/game.js"></script>
   </head>
   <body>
     <!-- <h1>ShadowRunner</h1>
@@ -21,11 +19,14 @@
 
     <script type="text/javascript" src="js/background.js"></script>
     <script type="text/javascript" src="js/mist.js"></script>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
+
     <script>
       (function () {
         new ShadowRunner.Background();
         new ShadowRunner.Mist();
-        // var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game-wrapper', { preload: preload, create: create, update: update }, true);
+        new ShadowRunner.Game();
       })();
     </script>
   </body>

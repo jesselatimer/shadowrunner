@@ -1,64 +1,95 @@
 (function () {
-  var terrain;
-  var ground;
-  var wisp;
-  var testObstacle;
 
-  function preload() {
-    game.load.image('ground', 'assets/blackrectangle.jpg');
-    game.load.image('wisp', 'assets/wisp.png');
-    game.load.image('obstacle', 'assets/badguy.png');
-    game.load.image('terrain', 'assets/mountain.png');
-  }
+  var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
 
-  function create() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+  var Game = ShadowRunner.Game = function () {
+    // Create Phaser game
+    this.game = new Phaser.Game(
+      window.innerWidth,
+      window.innerHeight,
+      Phaser.AUTO,
+      'game-wrapper',
+      {
+        preload: this.preload.bind(this),
+        create: this.create.bind(this),
+        update: this.update.bind(this)
+      },
+      true // Sets background to transparent
+    );
+  };
 
-    terrain = game.add.group();
-    terrain.enableBody = true;
-    ground = terrain.create(0, game.world.height - 120, 'ground');
-    ground.scale.setTo(2, 2);
-    ground.body.immovable = true;
+  Game.prototype.preload = function () {
+    this.game.load.image('ground', 'assets/blackrectangle.jpg');
+    this.game.load.image('wisp', 'assets/wisp.png');
+    this.game.load.image('obstacle', 'assets/badguy.png');
+    this.game.load.image('terrain', 'assets/mountain.png');
+    this.game.load.image('grass', 'assets/grass.png');
+  };
 
-    wisp = game.add.sprite(0, 0, 'wisp');
-    game.physics.arcade.enable(wisp);
-    wisp.scale.set(0.5, 0.5);
+  Game.prototype.create = function () {
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    wisp.body.gravity.y = 300;
-    player.body.collideWorldBounds = true;
+    this.terrain = this.game.add.group();
+    this.terrain.enableBody = true;
+    this.ground = this.terrain.create(0, this.game.world.height - 120, 'ground');
+    this.ground.scale.setTo(2, 2);
+    this.ground.body.immovable = true;
 
-    obstacles = game.add.group();
-    obstacles.enableBody = true;
+    this.wisp = this.game.add.sprite(70, 300, 'wisp');
+    this.game.physics.arcade.enable(this.wisp);
+    this.wisp.scale.set(0.5, 0.5);
+    this.wisp.body.gravity.y = 1000;
+    this.wisp.body.collideWorldBounds = true;
 
-    game.time.events.loop((Phaser.Timer.SECOND * game.rnd.integerInRange(2, 6)), createObstacle, this);
+    this.obstacles = this.game.add.group();
+    this.obstacles.enableBody = true;
+    this.nextObstacle = 0;
 
-    spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+    this.level = 2;
 
-  }
+    this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
 
-  function createObstacle() {
-    testObstacle = obstacles.create(game.world.width + 100, game.world.height - 200, 'obstacle');
-    testObstacle.scale.setTo(0.2, 0.2);
-    testObstacle.body.velocity.x = -200;
-  }
+  };
 
-  function update() {
-    game.physics.arcade.collide(wisp, terrain);
-    game.physics.arcade.collide(wisp, obstacles, die);
+  Game.prototype.update = function () {
+    this.game.physics.arcade.collide(this.wisp, this.terrain);
+    this.game.physics.arcade.collide(this.wisp, this.obstacles, _die.bind(this));
 
-    wisp.body.velocity.x = 0;
+    this.wisp.body.velocity.x = 0;
 
-
-    if (spacebar.isDown && wisp.body.touching.down)
-    {
-        wisp.body.velocity.y = -350;
+    // Jump
+    if (this.spacebar.isDown && this.wisp.body.touching.down) {
+      this.wisp.body.velocity.y = -550;
     }
 
-  }
+    // Create Obstacles
+    if (this.game.time.now > this.nextObstacle) {
+      this.updateNextObstacle();
+      this.createObstacle();
+    }
+  };
 
-  function die() {
-    wisp.kill();
-    game.pause();
+  Game.prototype.updateNextObstacle = function() {
+    // Average out new time to create a curve
+    var min = (this.game.rnd.realInRange(1, 6) * 1000),
+        max = (this.game.rnd.realInRange(1, 6) * 1000),
+        average = (min + max) / 2,
+        levelMod = this.level * 0.5,
+        newTime = average / levelMod;
+
+    this.nextObstacle = this.game.time.now + newTime;
+  };
+
+  Game.prototype.createObstacle = function () {
+    obstacle = this.obstacles.create(this.game.world.width + 100, this.game.world.height - 200, 'obstacle');
+    obstacle.scale.setTo(0.2, 0.2);
+    obstacle.body.velocity.x = -500;
+    obstacle.body.immovable = true;
+
+  };
+
+  function _die() {
+    this.wisp.kill();
   }
 })();

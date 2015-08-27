@@ -19,6 +19,7 @@
     this.entities.push(new Terrain({fillStyle : "#929292", mHeight : (this.height/2)-300, width: this.width, height: this.height}));
     this.entities.push(new Terrain({displacement : 120, scrollDelay : 50, fillStyle : "#5f5f5f", mHeight : (this.height/2)-200, width: this.width, height: this.height}));
     this.entities.push(new Terrain({displacement : 100, scrollDelay : 20, fillStyle : "#3a3a3a", mHeight : (this.height/2)-75, width: this.width, height: this.height}));
+    this.entities.push(new Terrain({displacement : 60, scrollDelay : 1, fillStyle : "#111", mHeight : (this.height/2)+50, width: this.width, height: this.height}));
 
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
       window.setTimeout(callback, 1000 / 60);

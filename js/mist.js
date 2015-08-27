@@ -13,7 +13,7 @@
     this.particleCount = 100;
 
     // The maximum velocity in each direction
-    this.maxVelocity = 0.3;
+    this.maxVelocity = 0.6;
 
     // The target frames per second (how often do we want to update / redraw the scene)
     this.targetFPS = 60;
@@ -35,10 +35,6 @@
 
     // Once the callback is arranged then set the source of the image
     imageObj.src = "/assets/Smoke10.png";
-
-    // The canvas context if it is defined.
-    // Don't need because it's a instance variable.
-    // var context;
 
     // Initialize the scene
     this.init();
@@ -172,8 +168,9 @@
 
   // The function to draw the scene
   Mist.prototype.draw = function () {
-      // Clear the drawing surface and fill it with a white background
-      this.context.fillStyle = "rgba(0, 0, 0, 0.5)";
+      // Clear the drawing surface and fill it with a background
+      // JL - this step is pretty important, otherwise it trails
+      this.context.fillStyle = "rgba(150, 150, 150, 0.5)";
       this.context.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
       // Go through all of the particles and draw them.
