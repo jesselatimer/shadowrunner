@@ -18,15 +18,15 @@
     <div id="game-wrapper"></div>
 
     <script type="text/javascript" src="js/background.js"></script>
-    <script type="text/javascript" src="js/mist.js"></script>
+    <!-- <script type="text/javascript" src="js/mist.js"></script> -->
     <script type="text/javascript" src="js/phaser.min.js"></script>
     <script type="text/javascript" src="js/game.js"></script>
 
     <script>
       (function () {
-        new ShadowRunner.Background();
-        new ShadowRunner.Mist();
-        new ShadowRunner.Game();
+        var background = new ShadowRunner.Background();
+        // new ShadowRunner.Mist();
+        new ShadowRunner.Game({ background: background });
       })();
     </script>
   </body>

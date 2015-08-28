@@ -21,6 +21,8 @@
     this.entities.push(new Terrain({displacement : 100, scrollDelay : 20,  fillStyle : "#3a3a3a", mHeight : (this.height/2)-75, width: this.width, height: this.height}));
     this.entities.push(new Terrain({displacement : 60,  scrollDelay :  1,  fillStyle : "#333", mHeight : (this.height/2)+50, width: this.width, height: this.height}));
 
+    this.isPaused = false;
+
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
       window.setTimeout(callback, 1000 / 60);
     };
@@ -38,10 +40,12 @@
 
       var entLen = this.entities.length;
 
-      while (entLen--) {
-          this.entities[entLen].update();
+      if (!this.isPaused) {
+        while (entLen--) {
+            this.entities[entLen].update();
+        }
       }
-      requestAnimationFrame(this.animate.bind(this));
+      requestAnimationFrame(this.animate.bind(this));        
   };
 
   // Define Terrain

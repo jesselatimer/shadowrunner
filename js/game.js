@@ -5,7 +5,9 @@
 
   var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
 
-  var Game = ShadowRunner.Game = function () {
+  var Game = ShadowRunner.Game = function (options) {
+    this.background = options.background;
+
     // Create Phaser game
     this.game = new Phaser.Game(
       window.innerWidth,
@@ -32,29 +34,28 @@
   Game.prototype.create = function () {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
+    // Add terrain
     this.terrain = this.game.add.group();
     this.terrain.enableBody = true;
     this.ground = this.terrain.create(0, this.game.world.height - 120, 'ground');
     this.ground.scale.setTo(2, 2);
     this.ground.body.immovable = true;
 
+    // Add obstacles
+    this.obstacles = this.game.add.group();
+    this.obstacles.enableBody = true;
+    this.nextObstacle = 0;
+
+    // Set level
+    this.level = 5;
+    this.obstacleCount = 0;
+
+    // Add wisp
     this.wisp = this.game.add.sprite(this.game.world.width * 0.3, 300, 'wisp');
     this.game.physics.arcade.enable(this.wisp);
     this.wisp.scale.set(0.5, 0.5);
     this.wisp.body.collideWorldBounds = true;
 
-    this.obstacles = this.game.add.group();
-    this.obstacles.enableBody = true;
-    this.nextObstacle = 0;
-
-    this.decorations = this.game.add.group();
-    this.decorations.enableBody = true;
-    this.game.time.events.loop(100, this.createDecoration, this);
-
-    this.level = 5;
-    this.obstacleCount = 0;
-
-    // Define movement constants
     this.MAX_SPEED = 500; // pixels/second
     this.ACCELERATION = 1500; // pixels/second/second
     this.DRAG = 600; // pixels/second
@@ -63,16 +64,15 @@
 
     // Set wisp minimum and maximum movement speed
     this.wisp.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED * 10); // x, y
-
-    // Add drag to the wisp that slows them down when they are not accelerating
     this.wisp.body.drag.setTo(this.DRAG, 0); // x, y
-
-    // Since we're jumping we need gravity
-    // this.game.physics.arcade.gravity.y = this.GRAVITY;
     this.wisp.body.gravity.y = this.GRAVITY;
 
-    // Flag to track if the jump button is pressed
     this.jumping = false;
+
+    // Add decorations
+    this.decorations = this.game.add.group();
+    this.decorations.enableBody = true;
+    this.game.time.events.loop(100, this.createDecoration, this);
 
     this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
@@ -80,7 +80,7 @@
 
   Game.prototype.update = function () {
     this.game.physics.arcade.collide(this.wisp, this.terrain);
-    this.game.physics.arcade.collide(this.wisp, this.obstacles, _die.bind(this));
+    this.game.physics.arcade.collide(this.wisp, this.obstacles, this.die.bind(this));
 
     // Jump
     // Set a variable that is true when the wisp is touching the ground
@@ -123,7 +123,7 @@
   };
 
   Game.prototype.createObstacle = function () {
-    obstacle = this.obstacles.create(this.game.world.width - 1, this.game.world.height - 200, 'obstacle');
+    var obstacle = this.obstacles.create(this.game.world.width - 1, this.game.world.height - 200, 'obstacle');
     obstacle.scale.setTo(0.2, 0.2);
     obstacle.body.velocity.x = -(1 - Math.exp(-(this.level) / 10)) * 1500;
     obstacle.body.immovable = true;
@@ -142,7 +142,6 @@
 
   Game.prototype.objectOOB = function (object) {
     object.kill();
-    console.log("destroy object");
   };
 
   // This function should return true when the wisp activates the "jump" control
@@ -166,8 +165,46 @@
       return released;
   };
 
-  function _die() {
+  Game.prototype.die = function () {
+    // play death animation, on success:
     this.wisp.kill();
-  }
+    this.gameOver();
+  };
+
+  Game.prototype.gameOver = function () {
+    // Add game over screen
+    this.gameOverScreen = this.game.add.graphics(0, 0);
+    this.gameOverScreen.beginFill(0xffffff, 0.4);
+    this.gameOverScreen.lineStyle(2, 0xffffff, 0.4);
+    this.gameOverScreen.drawRoundedRect(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8, 5);
+    this.gameOverScreen.endFill();
+
+    this.gameOverText = this.game.add.text(0, 0, "Game Over");
+    this.gameOverText.setTextBounds(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8);
+    this.gameOverText.boundsAlignH = "center";
+    this.gameOverText.boundsAlignV = "middle";
+
+    // Add restart event listener
+    this.restartListener = this.game.input.onDown.add(this.restart.bind(this));
+
+    // Pause game
+    this.game.paused = true;
+    this.background.isPaused = true;
+  };
+
+  Game.prototype.restart = function () {
+    this.wisp.destroy();
+    this.terrain.destroy();
+    this.obstacles.destroy();
+    this.decorations.destroy();
+    this.gameOverScreen.destroy();
+    this.gameOverText.destroy();
+    this.restartListener.detach();
+
+    this.create();
+
+    this.game.paused = false;
+    this.background.isPaused = false;
+  };
 
 })();

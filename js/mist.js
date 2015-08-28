@@ -16,7 +16,7 @@
     this.maxVelocity = 0.6;
 
     // The target frames per second (how often do we want to update / redraw the scene)
-    this.targetFPS = 60;
+    this.targetFPS = 30;
 
     // Set the dimensions of the canvas as variables so they can be used.
     this.canvasWidth = window.innerWidth;
