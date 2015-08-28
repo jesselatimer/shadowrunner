@@ -45,7 +45,11 @@
     this.obstacles.enableBody = true;
     this.nextObstacle = 0;
 
-    this.level = 10;
+    this.decorations = this.game.add.group();
+    this.decorations.enableBody = true;
+    this.game.time.events.loop(100, this.createDecoration, this);
+
+    this.level = 3;
 
     this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
@@ -84,10 +88,15 @@
   Game.prototype.createObstacle = function () {
     obstacle = this.obstacles.create(this.game.world.width + 100, this.game.world.height - 200, 'obstacle');
     obstacle.scale.setTo(0.2, 0.2);
-    obstacle.body.velocity.x = -(1 - Math.exp(-(100) / 10)) * 1500;
-    console.log(obstacle.body.velocity.x);
+    obstacle.body.velocity.x = -(1 - Math.exp(-(this.level) / 10)) * 1500;
     obstacle.body.immovable = true;
+  };
 
+  Game.prototype.createDecoration = function () {
+    decoration = this.decorations.create(this.game.world.width + 25, this.game.world.height - 160, 'grass');
+    decoration.scale.setTo(0.2, 0.2);
+    decoration.body.velocity.x = -(1 - Math.exp(-(this.level) / 10)) * 1500;
+    decoration.body.immovable = true;
   };
 
   function _die() {
