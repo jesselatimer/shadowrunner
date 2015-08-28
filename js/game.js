@@ -45,7 +45,7 @@
     this.obstacles.enableBody = true;
     this.nextObstacle = 0;
 
-    this.level = 2;
+    this.level = 10;
 
     this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
@@ -75,7 +75,7 @@
     var min = (this.game.rnd.realInRange(1, 6) * 1000),
         max = (this.game.rnd.realInRange(1, 6) * 1000),
         average = (min + max) / 2,
-        levelMod = this.level * 0.5,
+        levelMod = (this.level > 5) ? (5 * 0.5) : (this.level * 0.5),
         newTime = average / levelMod;
 
     this.nextObstacle = this.game.time.now + newTime;
@@ -84,7 +84,8 @@
   Game.prototype.createObstacle = function () {
     obstacle = this.obstacles.create(this.game.world.width + 100, this.game.world.height - 200, 'obstacle');
     obstacle.scale.setTo(0.2, 0.2);
-    obstacle.body.velocity.x = -500;
+    obstacle.body.velocity.x = -(1 - Math.exp(-(100) / 10)) * 1500;
+    console.log(obstacle.body.velocity.x);
     obstacle.body.immovable = true;
 
   };
