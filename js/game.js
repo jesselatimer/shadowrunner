@@ -1,3 +1,6 @@
+// Variable Jumping code adapted from code © 2014 John Watson
+// Licensed under the terms of the MIT License
+
 (function () {
 
   var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
@@ -38,7 +41,6 @@
     this.wisp = this.game.add.sprite(70, 300, 'wisp');
     this.game.physics.arcade.enable(this.wisp);
     this.wisp.scale.set(0.5, 0.5);
-    this.wisp.body.gravity.y = 1000;
     this.wisp.body.collideWorldBounds = true;
 
     this.obstacles = this.game.add.group();
@@ -51,20 +53,54 @@
 
     this.level = 3;
 
+    // Define movement constants
+    this.MAX_SPEED = 500; // pixels/second
+    this.ACCELERATION = 1500; // pixels/second/second
+    this.DRAG = 600; // pixels/second
+    this.GRAVITY = 2600; // pixels/second/second
+    this.JUMP_SPEED = -700; // pixels/second (negative y is up)
+
+    // Set wisp minimum and maximum movement speed
+    this.wisp.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED * 10); // x, y
+
+    // Add drag to the wisp that slows them down when they are not accelerating
+    this.wisp.body.drag.setTo(this.DRAG, 0); // x, y
+
+    // Since we're jumping we need gravity
+    // this.game.physics.arcade.gravity.y = this.GRAVITY;
+    this.wisp.body.gravity.y = this.GRAVITY;
+
+    // Flag to track if the jump button is pressed
+    this.jumping = false;
+
     this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
-
   };
 
   Game.prototype.update = function () {
     this.game.physics.arcade.collide(this.wisp, this.terrain);
     this.game.physics.arcade.collide(this.wisp, this.obstacles, _die.bind(this));
 
-    this.wisp.body.velocity.x = 0;
-
     // Jump
-    if (this.spacebar.isDown && this.wisp.body.touching.down) {
-      this.wisp.body.velocity.y = -550;
+    // Set a variable that is true when the wisp is touching the ground
+    var onTheGround = this.wisp.body.touching.down;
+
+    // If the wisp is touching the ground, let him have 2 jumps
+    if (onTheGround) {
+        this.jumps = 2;
+        this.jumping = false;
+    }
+
+    // Jump! Keep y velocity constant while the jump button is held for up to 150 ms
+    if (this.jumps > 0 && this.upInputIsActive(150)) {
+        this.wisp.body.velocity.y = this.JUMP_SPEED;
+        this.jumping = true;
+    }
+
+    // Reduce the number of available jumps if the jump input is released
+    if (this.jumping && this.upInputReleased()) {
+        this.jumps--;
+        this.jumping = false;
     }
 
     // Create Obstacles
@@ -99,7 +135,29 @@
     decoration.body.immovable = true;
   };
 
+  // This function should return true when the wisp activates the "jump" control
+  // In this case, either holding the up arrow or tapping or clicking.
+  Game.prototype.upInputIsActive = function (duration) {
+      var isActive = false;
+
+      isActive = this.game.input.keyboard.downDuration(Phaser.Keyboard.SPACEBAR, duration);
+      isActive |= (this.game.input.activePointer.justPressed(duration + 1000/60));
+
+      return isActive;
+  };
+
+  // This function returns true when the wisp releases the "jump" control
+  Game.prototype.upInputReleased = function () {
+      var released = false;
+
+      released = this.game.input.keyboard.upDuration(Phaser.Keyboard.SPACEBAR);
+      released |= this.game.input.activePointer.justReleased();
+
+      return released;
+  };
+
   function _die() {
     this.wisp.kill();
   }
+
 })();
