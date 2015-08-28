@@ -38,7 +38,7 @@
     this.ground.scale.setTo(2, 2);
     this.ground.body.immovable = true;
 
-    this.wisp = this.game.add.sprite(70, 300, 'wisp');
+    this.wisp = this.game.add.sprite(this.game.world.width * 0.3, 300, 'wisp');
     this.game.physics.arcade.enable(this.wisp);
     this.wisp.scale.set(0.5, 0.5);
     this.wisp.body.collideWorldBounds = true;
@@ -51,7 +51,8 @@
     this.decorations.enableBody = true;
     this.game.time.events.loop(100, this.createDecoration, this);
 
-    this.level = 3;
+    this.level = 5;
+    this.obstacleCount = 0;
 
     // Define movement constants
     this.MAX_SPEED = 500; // pixels/second
@@ -122,17 +123,26 @@
   };
 
   Game.prototype.createObstacle = function () {
-    obstacle = this.obstacles.create(this.game.world.width + 100, this.game.world.height - 200, 'obstacle');
+    obstacle = this.obstacles.create(this.game.world.width - 1, this.game.world.height - 200, 'obstacle');
     obstacle.scale.setTo(0.2, 0.2);
     obstacle.body.velocity.x = -(1 - Math.exp(-(this.level) / 10)) * 1500;
     obstacle.body.immovable = true;
+    obstacle.events.onOutOfBounds.add(this.objectOOB, this);
+    obstacle.checkWorldBounds = true;
   };
 
   Game.prototype.createDecoration = function () {
-    decoration = this.decorations.create(this.game.world.width + 25, this.game.world.height - 160, 'grass');
+    decoration = this.decorations.create(this.game.world.width - 1, this.game.world.height - 160, 'grass');
     decoration.scale.setTo(0.2, 0.2);
     decoration.body.velocity.x = -(1 - Math.exp(-(this.level) / 10)) * 1500;
     decoration.body.immovable = true;
+    decoration.events.onOutOfBounds.add(this.objectOOB, this);
+    decoration.checkWorldBounds = true;
+  };
+
+  Game.prototype.objectOOB = function (object) {
+    object.kill();
+    console.log("destroy object");
   };
 
   // This function should return true when the wisp activates the "jump" control
