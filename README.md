@@ -1,6 +1,6 @@
 # Shadow Runner
 
-[View it live.][site]
+[Play it now.][site]
 
 [site]: http://www.jesselatimer.com/shadowrunner/index.html
 
