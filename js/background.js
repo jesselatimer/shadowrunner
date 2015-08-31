@@ -45,7 +45,7 @@
             this.entities[entLen].update();
         }
       }
-      requestAnimationFrame(this.animate.bind(this));        
+      requestAnimationFrame(this.animate.bind(this));
   };
 
   // Define Terrain
