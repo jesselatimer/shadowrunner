@@ -24,9 +24,30 @@
 
     <script>
       (function () {
-        var background = new ShadowRunner.Background();
+        var docHeight = document.body.offsetHeight,
+            docWidth = document.body.offsetWidth,
+            width,
+            height;
+
+        if (docWidth > 900) {
+          width = 900;
+        } else if (docWidth < 400) {
+          width = 400;
+        } else {
+          width = docWidth;
+        }
+
+        if (docHeight > 600) {
+          height = 600;
+        } else if (docHeight < 300) {
+          height = 300;
+        } else {
+          height = docHeight;
+        }
+
+        var background = new ShadowRunner.Background({ width: width, height: height });
         // new ShadowRunner.Mist();
-        new ShadowRunner.Game({ background: background });
+        new ShadowRunner.Game({ background: background, width: width, height: height });
       })();
     </script>
   </body>

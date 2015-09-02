@@ -4,13 +4,12 @@
 
   var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
 
-  var Background = ShadowRunner.Background = function () {
+  var Background = ShadowRunner.Background = function (options) {
     this.background = document.getElementById("bg-canvas");
     this.bgCtx = this.background.getContext("2d");
 
-    this.width = window.innerWidth;
-    var docHeight = document.body.offsetHeight;
-    this.height = (docHeight < 400) ? 400 : docHeight;
+    this.width = options.width;
+    this.height = options.height;
 
     this.background.width = this.width;
     this.background.height = this.height;

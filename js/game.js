@@ -14,8 +14,8 @@
 
     // Create Phaser game
     this.game = new Phaser.Game(
-      window.innerWidth,
-      window.innerHeight,
+      options.width,
+      options.height,
       Phaser.CANVAS,
       'game-wrapper',
       {
@@ -39,6 +39,7 @@
 
   Game.prototype.create = function () {
     this.debug = false;
+    this.game.canvas.oncontextmenu = function (e) { e.preventDefault(); };
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.level = 5;

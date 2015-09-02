@@ -35,3 +35,4 @@ land. Built with JavaScript, using the [Phaser][phaser] HTML5 framework.
 
 ### Bug Fixes
 - [ ] Spacebar doesn't reset Game Over
+- [ ] Infinite jumping unlocks sometimes (on holding mouse button)
