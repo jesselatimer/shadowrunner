@@ -49,6 +49,8 @@
   Game.prototype.create = function () {
     this.debug = false;
     this.game.canvas.oncontextmenu = function (e) { e.preventDefault(); };
+    this.dead = false;
+    this.cutscene = true;
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.level = 5;
@@ -56,12 +58,22 @@
     this.jumping = false;
 
     // Add wisp
-    this.wisp = this.game.add.sprite(-100, 320, 'wisp');
-    this.game.add.tween(this.wisp).to( { x: this.game.world.width * 0.3 }, 2000, "Sine.easeOut", true);
+    this.wisp = this.game.add.sprite(1, this.game.world.height - 200, 'wisp');
+    this.game.add.tween(this.wisp).to( {
+      x: [
+        this.game.world.width * 0.1,
+        this.game.world.width * 0.3
+         ]
+       }, 2000, "Sine.easeOut", true, 1200);
+
     this.game.physics.arcade.enable(this.wisp);
+    this.wisp.anchor.x = 1;
+    this.wisp.anchor.y = 1;
+
     setTimeout(function () {
       this.wisp.body.collideWorldBounds = true;
-    }.bind(this), 1000);
+      this.cutscene = false;
+    }.bind(this), 2400);
 
     this.MAX_SPEED = 700; // pixels/second
     this.ACCELERATION = 1500; // pixels/second/second
@@ -130,21 +142,24 @@
     this.bonusJumps = jumpNum > 2 ? 2 : jumpNum;
 
     // If the wisp is touching the ground, let him have jumps
-    if (onTheGround) {
-        this.jumps = 1 + this.bonusJumps;
-        this.jumping = false;
+    if (this.dead || this.cutscene) {
+      this.jumps = 0;
+      this.jumping = false;
+    } else if (onTheGround) {
+      this.jumps = 1 + this.bonusJumps;
+      this.jumping = false;
     }
 
     // Jump! Keep y velocity constant while the jump button is held
-    if (this.jumps > 0 && this.upInputIsActive(200)) {
-        this.wisp.body.velocity.y = this.JUMP_SPEED;
-        this.jumping = true;
+    if (this.jumps > 0 && this.upInputIsActive(200) && !this.dead && !this.cutscene) {
+      this.wisp.body.velocity.y = this.JUMP_SPEED;
+      this.jumping = true;
     }
 
     // If the jump input is released, set jumping to false
     if (this.jumping && this.upInputReleased()) {
-        this.jumps--;
-        this.jumping = false;
+      this.jumps--;
+      this.jumping = false;
     }
 
     // Create Obstacles
@@ -261,6 +276,7 @@
 
   Game.prototype.gameOver = function () {
     if (this.obstacleCount > this.highScore) { this.highScore = this.obstacleCount; }
+    this.dead = true;
 
     // Add game over screen
     this.gameOverScreen = this.game.add.graphics(0, 0);
