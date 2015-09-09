@@ -1,11 +1,18 @@
 // Variable Jumping code adapted from code © 2014 John Watson
 // Licensed under the terms of the MIT License
 
-// TO DO:
-// Implement p2 (ninja?) physics for circular hitboxes.
-// Music?
-
 (function () {
+
+  //  The Google WebFont Loader will look for this object, so create it before loading the script.
+  WebFontConfig = {
+
+      //  The Google Fonts we want to load (specify as many as you like in the array)
+      google: {
+        families: ['Kaushan Script']
+      }
+
+  };
+
 
   var ShadowRunner = window.ShadowRunner = window.ShadowRunner || {};
 
@@ -29,12 +36,14 @@
   };
 
   Game.prototype.preload = function () {
+    this.game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     this.game.load.image('ground', 'assets/blackrectangle.jpg');
     this.game.load.image('emptyGround', 'assets/transparent.png');
     this.game.load.image('wisp', 'assets/wisp.gif');
     this.game.load.image('obstacle', 'assets/spikeballred.png');
     this.game.load.image('terrain', 'assets/mountain.png');
     this.game.load.image('grass', 'assets/grass.png');
+    this.highScore = 0;
   };
 
   Game.prototype.create = function () {
@@ -67,7 +76,6 @@
       this.wisp.body.width * 0.1,
       this.wisp.body.height * 0.3
     );
-
 
     // Add obstacles
     this.obstacles = this.game.add.group();
@@ -110,20 +118,19 @@
     var jumpNum = Math.floor((this.level - 5) / 5);
     this.bonusJumps = jumpNum > 2 ? 2 : jumpNum;
 
-    console.log(this.bonusJumps);
-    // If the wisp is touching the ground, let him have 2 jumps
+    // If the wisp is touching the ground, let him have jumps
     if (onTheGround) {
         this.jumps = 1 + this.bonusJumps;
         this.jumping = false;
     }
 
-    // Jump! Keep y velocity constant while the jump button is held for up to 150 ms
-    if (this.jumps > 0 && this.upInputIsActive(150)) {
+    // Jump! Keep y velocity constant while the jump button is held
+    if (this.jumps > 0 && this.upInputIsActive(200)) {
         this.wisp.body.velocity.y = this.JUMP_SPEED;
         this.jumping = true;
     }
 
-    // Reduce the number of available jumps if the jump input is released
+    // If the jump input is released, set jumping to false
     if (this.jumping && this.upInputReleased()) {
         this.jumps--;
         this.jumping = false;
@@ -242,6 +249,8 @@
   };
 
   Game.prototype.gameOver = function () {
+    if (this.obstacleCount > this.highScore) { this.highScore = this.obstacleCount; }
+
     // Add game over screen
     this.gameOverScreen = this.game.add.graphics(0, 0);
     this.gameOverScreen.beginFill(0xffffff, 0.4);
@@ -249,17 +258,27 @@
     this.gameOverScreen.drawRoundedRect(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8, 5);
     this.gameOverScreen.endFill();
 
-    this.gameOverText = this.game.add.text(0, 0, "Game Over");
+    this.gameOverText = this.game.add.text(0, 0, "you have failed \nclick to try again \nobstacles cleared: " + this.obstacleCount + " \nrecord: " + this.highScore + " ");
+    this.gameOverText.alpha = 0;
     this.gameOverText.setTextBounds(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8);
     this.gameOverText.boundsAlignH = "center";
     this.gameOverText.boundsAlignV = "middle";
+    this.gameOverText.font = 'Kaushan Script';
+    this.gameOverText.fontSize = 50;
+    this.gameOverText.align = "center";
+    this.game.add.tween(this.gameOverText).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.terrain).to( { alpha: 0 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.decorations).to( { alpha: 0 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.obstacles).to( { alpha: 0 }, 500, "Sine.easeIn", true);
 
     // Add restart event listener
     this.restartListener = this.game.input.onDown.add(this.restart.bind(this));
 
     // Pause game
-    this.game.paused = true;
-    this.background.isPaused = true;
+    setTimeout(function () {
+      this.game.paused = true;
+      this.background.isPaused = true;
+    }.bind(this), 700);
   };
 
   Game.prototype.restart = function () {
@@ -280,7 +299,5 @@
   Game.prototype.debugMode = function () {
 		this.game.debug.body(this.wisp, "#9090ff", false);
 		this.obstacles.forEachAlive(this.game.debug.body,this.game.debug,"#ff9090",false);
-		// this.redLasers.forEach(game.debug.body,game.debug,"#dd00dd",false);
-		// this.blueLasers.forEach(game.debug.body,game.debug,"#00dd00",false);
 	};
 })();
