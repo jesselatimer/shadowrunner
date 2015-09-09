@@ -44,6 +44,7 @@
     this.game.load.image('terrain', 'assets/mountain.png');
     this.game.load.image('grass', 'assets/grass.png');
     this.highScore = 0;
+    this.firstRun = true;
   };
 
   Game.prototype.create = function () {
@@ -59,6 +60,7 @@
 
     // Add wisp
     this.wisp = this.game.add.sprite(-10, this.game.world.height - 300, 'wisp');
+
     this.game.add.tween(this.wisp).to( {
       x: [
         this.game.world.width * 0.1,
@@ -67,13 +69,16 @@
        }, 2000, "Sine.easeOut", true, 1200);
 
     this.game.physics.arcade.enable(this.wisp);
+    this.wisp.body.collideWorldBounds = false;
     this.wisp.anchor.x = 1;
     this.wisp.anchor.y = 1;
 
-    setTimeout(function () {
-      this.wisp.body.collideWorldBounds = true;
-      this.cutscene = false;
-    }.bind(this), 2400);
+    if (!this.firstRun) {
+      setTimeout(function () {
+        this.wisp.body.collideWorldBounds = true;
+        this.cutscene = false;
+      }.bind(this), 2400);
+    }
 
     this.MAX_SPEED = 700; // pixels/second
     this.ACCELERATION = 1500; // pixels/second/second
@@ -127,6 +132,11 @@
 
     // Negate standard spacebar function
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+
+    if (this.firstRun) {
+      this.firstRun = false;
+      this.startScreen();
+    }
   };
 
   Game.prototype.update = function () {
@@ -274,6 +284,38 @@
     this.gameOver();
   };
 
+  Game.prototype.startScreen = function () {
+    if (this.obstacleCount > this.highScore) { this.highScore = this.obstacleCount; }
+    this.wisp.kill();
+    this.dead = true;
+
+    // Add game over screen
+    this.gameOverScreen = this.game.add.graphics(0, 0);
+    this.gameOverScreen.alpha = 0;
+    this.gameOverScreen.beginFill(0xffffff, 0.4);
+    this.gameOverScreen.lineStyle(2, 0xffffff, 0.4);
+    this.gameOverScreen.drawRoundedRect(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8, 5);
+    this.gameOverScreen.endFill();
+
+    this.gameOverText = this.game.add.text(0, 0, "shadow runner \nclick to start running \nclick or space to jump");
+    this.gameOverText.alpha = 0;
+    this.gameOverText.setTextBounds(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8);
+    this.gameOverText.boundsAlignH = "center";
+    this.gameOverText.boundsAlignV = "middle";
+    this.gameOverText.font = 'Kaushan Script';
+    this.gameOverText.fontSize = 50;
+    this.gameOverText.align = "center";
+    this.game.add.tween(this.gameOverText).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.gameOverScreen).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.terrain).to( { alpha: 0 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.decorations).to( { alpha: 0 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.obstacles).to( { alpha: 0 }, 500, "Sine.easeIn", true);
+
+    // Add restart event listener
+    this.restartListener = this.game.input.onDown.add(this.restart.bind(this));
+  };
+
+
   Game.prototype.gameOver = function () {
     if (this.obstacleCount > this.highScore) { this.highScore = this.obstacleCount; }
     this.dead = true;
@@ -314,9 +356,6 @@
     this.restartListener.detach();
 
     this.create();
-
-    this.game.paused = false;
-    this.background.isPaused = false;
   };
 
   Game.prototype.debugMode = function () {
