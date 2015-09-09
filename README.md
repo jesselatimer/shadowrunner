@@ -18,11 +18,14 @@ land. Built with JavaScript, using the [Phaser][phaser] HTML5 framework.
 - [x] Variable height jumps through clicking or spacebar
 - [x] Jumping and running simulate real world physics with gravity, drag, and terminal velocity.
 
+### Responsive Feedback
+- [x] Obstacles cleared on death
+- [x] Speed and difficulty ups
+
 ## To Do
 ### Responsive Feedback
 - [ ] Jump Count
-- [ ] Time on death
-- [ ] Speed and difficulty ups
+- [ ] Speed/difficulty up notifications
 
 ### Custom graphics
 - [ ] Custom Wisp sprite + running, jumping, and death animations

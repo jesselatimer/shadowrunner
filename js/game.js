@@ -58,7 +58,7 @@
     this.jumping = false;
 
     // Add wisp
-    this.wisp = this.game.add.sprite(1, this.game.world.height - 200, 'wisp');
+    this.wisp = this.game.add.sprite(-10, this.game.world.height - 300, 'wisp');
     this.game.add.tween(this.wisp).to( {
       x: [
         this.game.world.width * 0.1,
@@ -88,8 +88,8 @@
     this.wisp.body.setSize(
       this.wisp.body.width * 0.8,
       this.wisp.body.height * 0.6,
-      this.wisp.body.width * 0.1,
-      this.wisp.body.height * 0.3
+      this.wisp.body.width * -0.1,
+      this.wisp.body.height * -0.1
     );
 
     // Add obstacles
@@ -116,8 +116,8 @@
     this.ground.body.immovable = true;
 
     // Empty terrain gives illusion of floating
-    this.emptyGround = this.terrain.create(0, this.game.world.height - 135, 'emptyGround');
-    this.emptyGround.scale.setTo(1, 2);
+    this.emptyGround = this.terrain.create(-50, this.game.world.height - 145, 'emptyGround');
+    this.emptyGround.scale.setTo(1, 2.5);
     this.emptyGround.body.immovable = true;
 
     // Fade it all in
