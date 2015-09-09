@@ -56,9 +56,12 @@
     this.jumping = false;
 
     // Add wisp
-    this.wisp = this.game.add.sprite(this.game.world.width * 0.3, 320, 'wisp');
+    this.wisp = this.game.add.sprite(-100, 320, 'wisp');
+    this.game.add.tween(this.wisp).to( { x: this.game.world.width * 0.3 }, 2000, "Sine.easeOut", true);
     this.game.physics.arcade.enable(this.wisp);
-    this.wisp.body.collideWorldBounds = true;
+    setTimeout(function () {
+      this.wisp.body.collideWorldBounds = true;
+    }.bind(this), 1000);
 
     this.MAX_SPEED = 700; // pixels/second
     this.ACCELERATION = 1500; // pixels/second/second
@@ -79,11 +82,13 @@
 
     // Add obstacles
     this.obstacles = this.game.add.group();
+    this.obstacles.alpha = 0;
     this.obstacles.enableBody = true;
-    this.nextObstacle = 0;
+    this.nextObstacle = this.game.time.now + 3000;
 
     // Add decorations
     this.decorations = this.game.add.group();
+    this.decorations.alpha = 0;
     this.decorations.enableBody = true;
     for (var i = 1; i < (this.game.world.width / 80) + 2; i++) {
       this.createDecoration(i * 80);
@@ -92,6 +97,7 @@
 
     // Add terrain
     this.terrain = this.game.add.group();
+    this.terrain.alpha = 0;
     this.terrain.enableBody = true;
     this.ground = this.terrain.create(0, this.game.world.height - 120, 'ground');
     this.ground.scale.setTo(2, 2);
@@ -101,6 +107,11 @@
     this.emptyGround = this.terrain.create(0, this.game.world.height - 135, 'emptyGround');
     this.emptyGround.scale.setTo(1, 2);
     this.emptyGround.body.immovable = true;
+
+    // Fade it all in
+    this.game.add.tween(this.terrain).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.decorations).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.obstacles).to( { alpha: 1 }, 500, "Sine.easeIn", true);
 
     // Negate standard spacebar function
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
@@ -253,6 +264,7 @@
 
     // Add game over screen
     this.gameOverScreen = this.game.add.graphics(0, 0);
+    this.gameOverScreen.alpha = 0;
     this.gameOverScreen.beginFill(0xffffff, 0.4);
     this.gameOverScreen.lineStyle(2, 0xffffff, 0.4);
     this.gameOverScreen.drawRoundedRect(this.game.world.width * 0.1, this.game.world.height * 0.1, this.game.world.width * 0.8, this.game.world.height * 0.8, 5);
@@ -267,18 +279,13 @@
     this.gameOverText.fontSize = 50;
     this.gameOverText.align = "center";
     this.game.add.tween(this.gameOverText).to( { alpha: 1 }, 500, "Sine.easeIn", true);
+    this.game.add.tween(this.gameOverScreen).to( { alpha: 1 }, 500, "Sine.easeIn", true);
     this.game.add.tween(this.terrain).to( { alpha: 0 }, 500, "Sine.easeIn", true);
     this.game.add.tween(this.decorations).to( { alpha: 0 }, 500, "Sine.easeIn", true);
     this.game.add.tween(this.obstacles).to( { alpha: 0 }, 500, "Sine.easeIn", true);
 
     // Add restart event listener
     this.restartListener = this.game.input.onDown.add(this.restart.bind(this));
-
-    // Pause game
-    setTimeout(function () {
-      this.game.paused = true;
-      this.background.isPaused = true;
-    }.bind(this), 700);
   };
 
   Game.prototype.restart = function () {
